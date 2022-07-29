@@ -218,9 +218,8 @@ jobs:
           name: Run migrations
           command: |
             cd backend
-            cat .env
             npm install
-            npm run build
+            npm audit fix --audit-level=critical --force
             npm run migrations > migrations_dump.txt
       - run:
           name: Send migration results to memstash
