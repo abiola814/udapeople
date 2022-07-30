@@ -294,10 +294,14 @@ jobs:
       - run:
           name: Deploy frontend objects
           command: |
+            echo ENVIRONMENT=production >> frontend/.env
+            echo NODE_ENV=production >> frontend/.env
+            cd frontend
+            npm audit fix --audit-level=critical 
             npm install
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
-            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursiveou will add some code to rollback on failure      
+            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive       
       - revert-migrations
       - destroy_environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"  
