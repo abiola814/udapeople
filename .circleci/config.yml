@@ -346,6 +346,20 @@ jobs:
             export API_URL="http://${BACKEND_ip}:3030"
             echo API_URL="${API_URL}" >> frontend/.env
             cat frontend/.env
+      - run:
+          name: Deploy frontend objects
+          command: |
+            # your code here
+            echo ENVIRONMENT=production >> frontend/.env
+            echo NODE_ENV=production >> frontend/.env
+            cd frontend
+            npm audit fix --audit-level=critical 
+            npm install
+            npm run build
+            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
+            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+      - destroy_environment:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}" 
 
   deploy-backend:
     docker:
