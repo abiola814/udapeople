@@ -479,7 +479,7 @@ workflows:
           requires: [deploy-infrastructure]
       - run-migrations:
           requires: [configure-infrastructure]
-     - package_frontend_artifact:
+      - package_frontend_artifact:
           requires:
             - run_migrations
       - deploy_frontend_artifact:
