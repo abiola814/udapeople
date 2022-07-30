@@ -480,11 +480,9 @@ workflows:
       - run-migrations:
           requires: [configure-infrastructure]
       - package_frontend_artifact:
-          requires:
-            - run_migrations
+          requires: [run-migrations]
       - deploy_frontend_artifact:
-          requires:
-            - package_frontend_artifact
+          requires: [package_frontend_artifact]
       - deploy-backend:
           requires: [run-migrations]
       # - smoke-test:
