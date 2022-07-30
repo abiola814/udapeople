@@ -3,11 +3,16 @@
   file:
     path: ~/backend-app
     state: directory
-
+    owner: ubuntu
 - name: "Unarchive backend files"
   unarchive:
-    src: backend/artifact.tar.gz
+    src: |
+      cd backend
+      artifact.tar.gz
     dest: ~/backend-app
+    owner: ubuntu
+
+
 
 - name: "Installing Node Dependencies"
   shell: |
