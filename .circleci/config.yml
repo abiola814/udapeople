@@ -5,8 +5,7 @@ parameters:
     type: string
     default: '${CIRCLE_WORKFLOW_ID}'
 
-orbs:
-  slack: circleci/slack@4.1
+
 
 commands:
   destroy-environment:
@@ -39,7 +38,7 @@ commands:
           when: on_fail
           # Add when this will run
           command: |
-            SUCCESS=$(curl --insecure https://kvdb.io/MuX1TZL2mZ5it49bKNGjiL/migration_${CIRCLE_WORKFLOW_ID:0:7})
+            SUCCESS=$(curl --insecure https://kvdb.io/RKjy7ZzcsUQDe8Jufnew78/migration_${CIRCLE_WORKFLOW_ID:0:7})
             echo $SUCCESS
             if (($SUCCESS == 1))
             then
@@ -248,7 +247,8 @@ jobs:
             - project/backend
       # Here's where you will add some code to rollback on failure
       - destroy-environment:
-          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}      
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}  
+
 
   run-migrations:
     docker:
@@ -276,7 +276,7 @@ jobs:
           command: |
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
-              curl curl --insecure https://kvdb.io/MuX1TZL2mZ5it49bKNGjiL/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+              curl curl --insecure https://kvdb.io/RKjy7ZzcsUQDe8Jufnew78/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi 
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
