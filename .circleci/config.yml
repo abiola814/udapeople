@@ -35,12 +35,12 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
-            cd ~/project/backend
+            cd backend
             if [[ -f "~/project/.circleci/outputs/db_migration_success" ]]; then
               npm i
               npm run migration:revert
             fi
-            
+
 jobs:
   build-frontend:
     docker:
