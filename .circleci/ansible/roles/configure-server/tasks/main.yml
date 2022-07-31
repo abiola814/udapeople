@@ -2,10 +2,10 @@
 - name: 'update and upgrade packages.'
   become: yes
   apt:
-    upgrade: yes
     update_cache: yes
-    cache_valid_time: 86400
-    force_apt_get: true
+    upgrade: yes
+
+
 - name: remove unneeded deps
   become: yes
   apt:
