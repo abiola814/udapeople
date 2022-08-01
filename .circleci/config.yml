@@ -385,7 +385,8 @@ jobs:
             --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
-            if curl "${API_URL}/api/status"
+            # curl "${API_URL}/api/status"
+            if curl -s http://google.com
             then
                 return 0
             else
@@ -399,7 +400,7 @@ jobs:
             if curl ${URL} | grep "Welcome"
             then
               # Change this to 0 after the job fails
-              return 0
+              return 1
             else
               return 1
             fi
