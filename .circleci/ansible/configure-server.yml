@@ -26,7 +26,7 @@
 
   # Get the environment variables from CircleCI and add to the EC2 instance
   pre_tasks:
-    - name: "wait 600 seconds for target connection to become reachable/usable."
+    - name: "wait 600 seconds fo';l;;l;l' target connection to become reachable/usable."
       wait_for_connection:
         timeout: 600
 
