@@ -404,6 +404,7 @@ jobs:
               --stack-name udapeople-cloudfront
       - destroy-environment
       - revert-migrations
+      
 
   cleanup:
     docker:
