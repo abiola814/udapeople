@@ -148,7 +148,7 @@ jobs:
       - run:
           name: Back-end Unit Test
           command: |
-            cd backends
+            cd backend
             npm install
             npm test
       - notify_on_failure
