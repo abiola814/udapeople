@@ -5,18 +5,18 @@ orbs:
 
 commands:
 
-  notify_on_failure:
+  failure_notify:
     steps:
       - slack/notify:
           event: fail
           channel: continous-integration-and-deployment
           template: basic_fail_1
 
-  install_nodejs:
-    description: Install Node.js 13
+  install_or_update_node:
+    description: Install Node of version 13
     steps:
       - run:
-          name: Install Node.js 13
+          name: Install Node of verion 13
           command: |
             curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
             sudo apt install -y nodejs
@@ -34,22 +34,18 @@ commands:
             unzip awscliv2.zip
             sudo ./aws/install
 
-  install_ansible:
-    description: Install Ansible
+  ansible:
+    description: config ansible
     steps:
       - run:
-          name: Install Ansible
+          name: config ansible
           command: |
             sudo apt update
             sudo apt install -y python3 python3-pip
             python3 -m pip install --user ansible
 
-            # sudo apt update
-            # sudo apt install software-properties-common -y
-            # sudo add-apt-repository --yes --update ppa:ansible/ansible
-            # sudo apt install ansible -y
 
-  destroy-environment:
+  remove-environ:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
       Workflow_ID:
@@ -64,7 +60,7 @@ commands:
             aws s3 rm s3://udapeople-<<parameters.Workflow_ID>> --recursive
             aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.Workflow_ID >>
 
-  revert-migrations:
+  remove-migrate:
     description: Revert the last migration
     parameters:
       Workflow_ID:
@@ -101,7 +97,7 @@ jobs:
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-deps
-      - notify_on_failure
+      - failure_notify
       
 
   build-backend:
@@ -120,7 +116,7 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-deps
-      - notify_on_failure
+      - failure_notify
 
   test-frontend:
     docker:
@@ -135,7 +131,7 @@ jobs:
             cd frontend
             npm install
             npm test
-      - notify_on_failure
+      - failure_notify
 
   test-backend:
     docker:
@@ -147,10 +143,10 @@ jobs:
       - run:
           name: Back-end Unit Test
           command: |
-            cd backends
+            cd backend
             npm install
             npm test
-      - notify_on_failure
+      - failure_notify
             
   scan-frontend:
     docker:
@@ -225,7 +221,7 @@ jobs:
           paths:
             - project/.circleci/ansible/inventory.txt
 
-      - destroy-environment
+      - remove-environ
 
 
   configure-infrastructure:
@@ -234,7 +230,7 @@ jobs:
     steps:
       - checkout
       - install_awscli
-      - install_ansible
+      - ansible
       - add_ssh_keys:
           fingerprints: ["75:fe:fa:32:56:28:ea:9c:3f:c6:fb:3e:33:44:32:9a"]
       - attach_workspace:
@@ -245,7 +241,7 @@ jobs:
             cd .circleci/ansible
             cat inventory.txt
             ansible-playbook -i inventory.txt configure-server.yml
-      - destroy-environment     
+      - remove-environ     
 
   run-migrations:
     docker:
@@ -253,7 +249,7 @@ jobs:
     steps:
       - checkout
       - install_awscli
-      - install_nodejs
+      - install_or_update_node
       - restore_cache:
           keys: [backend-deps]
       - run:
@@ -273,8 +269,8 @@ jobs:
             
               echo "No migrations are pending" 
             fi
-      - destroy-environment
-      - revert-migrations  
+      - remove-environ
+      - remove-migrate  
 
   deploy-frontend:
     docker:
@@ -282,7 +278,7 @@ jobs:
     steps:
       - checkout
       - install_awscli
-      - install_nodejs
+      - install_or_update_node
       - restore_cache:
           keys: [frontend-deps]
       - run:
@@ -307,8 +303,8 @@ jobs:
             npm run build
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
 
-      - destroy-environment
-      - revert-migrations
+      - remove-environ
+      - remove-migrate
 
 
   deploy-backend:
@@ -317,8 +313,8 @@ jobs:
     steps:
       - checkout
       - install_awscli
-      - install_ansible
-      - install_nodejs
+      - ansible
+      - install_or_update_node
       - add_ssh_keys:
           fingerprints: ["75:fe:fa:32:56:28:ea:9c:3f:c6:fb:3e:33:44:32:9a"]
       - attach_workspace:
@@ -350,8 +346,8 @@ jobs:
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
 
-      - destroy-environment
-      - revert-migrations
+      - remove-environ
+      - remove-migrate
 
   smoke-test:
     docker:
@@ -359,7 +355,7 @@ jobs:
     steps:
       - checkout
       - install_awscli
-      - install_nodejs
+      - install_or_update_node
       - run:
           name: Backend smoke test.
           command: |
@@ -385,8 +381,8 @@ jobs:
             else
               exit 1
             fi
-      - destroy-environment
-      - revert-migrations
+      - remove-environ
+      - remove-migrate
 
 
   cloudfront-update:
@@ -395,7 +391,7 @@ jobs:
     steps:
       - checkout
       - install_awscli
-      - install_nodejs
+      - install_or_update_node
       - run:
           name: Save Old Workflow ID to kvdb.io
           command: |
@@ -411,8 +407,8 @@ jobs:
               --template-file .circleci/files/cloudfront.yml \
               --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
               --stack-name udapeople-cloudfront
-      - destroy-environment
-      - revert-migrations
+      - remove-environ
+      - remove-migrate
 
 
   cleanup:
@@ -421,7 +417,7 @@ jobs:
     steps:
       - checkout
       - install_awscli
-      - install_nodejs
+      - install_or_update_node
       - run:
           name: Remove old stacks and files
           command: |
