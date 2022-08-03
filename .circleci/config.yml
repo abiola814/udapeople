@@ -1,8 +1,16 @@
 version: 2.1
 
+orbs: 
+  slack: circleci/slack@4.10.1
 
 commands:
 
+  notify_on_failure:
+    steps:
+      - slack/notify:
+          event: fail
+          channel: continous-integration-and-deployment
+          template: basic_fail_1
 
   install_nodejs:
     description: Install Node.js 13
@@ -93,6 +101,7 @@ jobs:
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-deps
+      - notify_on_failure
       
 
   build-backend:
@@ -111,7 +120,7 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-deps
-      
+      - notify_on_failure
 
   test-frontend:
     docker:
@@ -126,7 +135,7 @@ jobs:
             cd frontend
             npm install
             npm test
-      
+      - notify_on_failure
 
   test-backend:
     docker:
@@ -138,10 +147,10 @@ jobs:
       - run:
           name: Back-end Unit Test
           command: |
-            cd backend
+            cd backends
             npm install
             npm test
-      
+      - notify_on_failure
             
   scan-frontend:
     docker:
