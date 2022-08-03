@@ -404,7 +404,7 @@ jobs:
               --stack-name udapeople-cloudfront
       - destroy-environment
       - revert-migrations
-      
+
 
   cleanup:
     docker:
@@ -440,6 +440,7 @@ jobs:
   #         channel: cicd_pipeline
   #         event: pass
   #         template: success_tagged_deploy_1            
+  
 
 workflows:
   default:
